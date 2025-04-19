@@ -8,7 +8,7 @@ function Header() {
                 <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
                     <Link to="/" className="flex items-center">
                         <img
-                            src="https://alexharkness.com/wp-content/uploads/2020/06/logo-2.png"
+                            src="https://media.istockphoto.com/id/1056250904/photo/letter-c-logo-design.jpg?s=1024x1024&w=is&k=20&c=zq462f3DRYW3SpWzG3KPH3H5PhfE8gNyqfj1luTGeVE="
                             className="mr-3 h-12"
                             alt="Logo"
                         />
@@ -42,14 +42,34 @@ function Header() {
                                     Home
                                 </NavLink>
                             </li>
-                            <li>
+                             <li>
                                 <NavLink
-                                to="/about"
+                                to="/Jokes"
                                     className={({isActive}) =>
                                         `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
                                     }
                                 >
-                                    About
+                                   Jokes
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                to="/Poem"
+                                    className={({isActive}) =>
+                                        `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
+                                    }
+                                >
+                                   Poem
+                                </NavLink>
+                            </li>
+                                <li>
+                                <NavLink
+                                to="/Story"
+                                    className={({isActive}) =>
+                                        `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
+                                    }
+                                >
+                                   Story
                                 </NavLink>
                             </li>
                             <li>
@@ -62,16 +82,7 @@ function Header() {
                                     Contact
                                 </NavLink>
                             </li>
-                            <li>
-                                <NavLink
-                                to="/github"
-                                    className={({isActive}) =>
-                                        `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
-                                    }
-                                >
-                                    Github
-                                </NavLink>
-                            </li>
+                           
                             
                         </ul>
                     </div>

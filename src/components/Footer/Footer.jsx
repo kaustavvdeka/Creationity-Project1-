@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
                     <div className="mb-6 md:mb-0">
                         <Link to="/" className="flex items-center">
                             <img
-                                src="https://alexharkness.com/wp-content/uploads/2020/06/logo-2.png"
+                                src="https://media.istockphoto.com/id/1056250904/photo/letter-c-logo-design.jpg?s=1024x1024&w=is&k=20&c=zq462f3DRYW3SpWzG3KPH3H5PhfE8gNyqfj1luTGeVE="
                                 className="mr-3 h-16"
                                 alt="Logo"
                             />

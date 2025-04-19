@@ -8,29 +8,9 @@ import Home from './components/Home/Home.jsx'
 import About from './components/About/About.jsx'
 import Contact from './components/Contact/Contact.jsx'
 import User from './components/User/User.jsx'
-import Github, { githubInfoLoader } from './components/Github/Github.jsx'
-
-// const router = createBrowserRouter([
-//   {
-//     path: '/',
-//     element: <Layout/>,
-//     children: [
-//       {
-//         path: "",
-//         element: <Home />
-//       },
-//       {
-//         path: "about",
-//         element: <About />
-//       },
-//       {
-//         path: "contact",
-//         element: <Contact />
-//       }
-//     ]
-//   }
-// ])
-
+import Jokes from './components/content/jokes.jsx'
+import Story from './components/content/story.jsx'
+import Poem from './components/content/Poem.jsx'
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<Layout />}>
@@ -38,11 +18,9 @@ const router = createBrowserRouter(
       <Route path='about' element={<About />} />
       <Route path='contact' element={<Contact />} />
       <Route path='user/:userid' element={<User />} />
-      <Route 
-      loader={githubInfoLoader}
-      path='github' 
-      element={<Github />}
-       />
+       <Route path='Jokes' element={<Jokes />} />
+        <Route path='Poem' element={<Poem />} />
+         <Route path='Story' element={<Story />} />
     </Route>
   )
 )
