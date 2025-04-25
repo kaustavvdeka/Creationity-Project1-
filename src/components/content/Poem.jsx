@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 const Poem = () => {
   const [poems, setPoems] = useState({
@@ -28,6 +28,10 @@ const Poem = () => {
 
   const [newPoem, setNewPoem] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+ useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
+  
 
   const nextPoem = (category) => {
     setCurrentIndex((prevIndex) => ({
@@ -37,7 +41,7 @@ const Poem = () => {
         : 0,
     }));
   };
-
+  
   const previousPoem = (category) => {
     setCurrentIndex((prevIndex) => ({
       ...prevIndex,

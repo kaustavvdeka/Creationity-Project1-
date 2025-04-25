@@ -8,8 +8,8 @@ import Home from './components/Home/Home.jsx'
 import About from './components/About/About.jsx'
 import Contact from './components/Contact/Contact.jsx'
 import User from './components/User/User.jsx'
-import Jokes from './components/content/jokes.jsx'
-import Story from './components/content/story.jsx'
+import Jokes from './components/content/Jokes.jsx'
+import Story from './components/content/Story.jsx'
 import Poem from './components/content/Poem.jsx'
 const router = createBrowserRouter(
   createRoutesFromElements(

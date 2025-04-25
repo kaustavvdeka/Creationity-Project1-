@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Story = () => {
   const [stories, setStories] = useState({
@@ -28,6 +28,11 @@ const Story = () => {
 
   const [newStory, setNewStory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Scroll to the top when the component is mounted
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const nextStory = (category) => {
     setCurrentIndex((prevIndex) => ({
