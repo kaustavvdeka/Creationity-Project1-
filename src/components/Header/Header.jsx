@@ -38,7 +38,7 @@ function Header() {
                     {/* Main Menu */}
                     <div className={`lg:flex w-full lg:w-auto lg:order-1 ${menuOpen ? "block" : "hidden"}`}>
                         <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                            {["Home", "Jokes", "Poem", "Story", "Contact"].map((item) => (
+                            {[" ", "Jokes", "Poem", "Story", "Contact"].map((item) => (
                                 <li key={item}>
                                     <NavLink
                                         to={`/${item}`}
