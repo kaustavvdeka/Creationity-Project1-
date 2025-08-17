@@ -6,27 +6,36 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import Layout from './Layout.jsx'
 import Home from './components/Home/Home.jsx'
 import About from './components/About/About.jsx'
-import Contact from './components/Contact/Contact.jsx'
+import Signin from './components/Signin/Signin.jsx'
+import Login from './components/Login/Login.jsx'
 import User from './components/User/User.jsx'
+import MyContent from './components/User/MyContent.jsx'
 import Jokes from './components/content/Jokes.jsx'
 import Story from './components/content/Story.jsx'
 import Poem from './components/content/Poem.jsx'
+import PickUpLine from './components/content/PickUpLine.jsx'
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<Layout />}>
       <Route path='' element={<Home />} />
       <Route path='about' element={<About />} />
-      <Route path='contact' element={<Contact />} />
-      <Route path='user/:userid' element={<User />} />
-       <Route path='Jokes' element={<Jokes />} />
-        <Route path='Poem' element={<Poem />} />
-         <Route path='Story' element={<Story />} />
+      <Route path='signin' element={<Signin />} />
+      <Route path='login' element={<Login />} />
+      <Route path='profile' element={<User />} />
+      <Route path='my-content' element={<MyContent />} />
+      <Route path='jokes' element={<Jokes />} />
+      <Route path='poem' element={<Poem />} />
+      <Route path='story' element={<Story />} />
+      <Route path='pickup-line' element={<PickUpLine />} />
     </Route>
   )
 )
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App>
+      <RouterProvider router={router} />
+    </App>
   </React.StrictMode>,
 )

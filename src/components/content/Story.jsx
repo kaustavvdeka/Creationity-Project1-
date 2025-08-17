@@ -1,114 +1,335 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { FaPlus, FaHeart, FaEye, FaEdit, FaTrash, FaSpinner, FaBook } from "react-icons/fa";
+import contentService from "../../services/contentService";
 
 const Story = () => {
-  const [stories, setStories] = useState({
-    "Adventure": [
-      "Once upon a time, a young explorer set off on a journey to find the lost city hidden deep within the jungle.",
-      "The pirate captain gazed at the treasure map, realizing the final clue was right in front of him all along.",
-      "Emma always dreamed of climbing the tallest mountain. Today was the day she finally reached the peak.",
-      "A mysterious letter led Alex to an abandoned lighthouse where a secret was waiting to be uncovered."
-    ],
-    "Fantasy": [
-      "Deep in the enchanted forest, a small village thrived under the protection of a powerful wizard.",
-      "A curious elf stumbled upon a glowing crystal, unlocking powers that could change the fate of his kingdom.",
-      "The dragon guarded a hidden library, where books came to life whenever someone opened them.",
-      "A lonely girl discovered a talking cat who guided her on a magical quest to restore harmony to the realm."
-    ],
-    "Mystery": [
-      "Detective Carter stepped into the old mansion, convinced the missing artifact was hidden somewhere within its walls.",
-      "The town's only clock stopped at midnight. No one knew why—until the stranger arrived.",
-      "Every night, someone left fresh flowers at the abandoned station. But who, and why?",
-      "The old bookstore owner vanished, leaving behind cryptic notes scattered among the shelves."
-    ]
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [stories, setStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [postForm, setPostForm] = useState({
+    title: '',
+    content: '',
+    category: 'Fiction',
+    tags: ''
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const [currentIndex, setCurrentIndex] = useState(
-    Object.keys(stories).reduce((acc, category) => ({ ...acc, [category]: 0 }), {})
-  );
-
-  const [newStory, setNewStory] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
-
-  // Scroll to the top when the component is mounted
   useEffect(() => {
-    window.scrollTo(0, 0);
+    loadStories();
   }, []);
 
-  const nextStory = (category) => {
-    setCurrentIndex((prevIndex) => ({
-      ...prevIndex,
-      [category]: prevIndex[category] < stories[category].length - 1
-        ? prevIndex[category] + 1
-        : 0,
-    }));
-  };
-
-  const previousStory = (category) => {
-    setCurrentIndex((prevIndex) => ({
-      ...prevIndex,
-      [category]: prevIndex[category] > 0
-        ? prevIndex[category] - 1
-        : stories[category].length - 1,
-    }));
-  };
-
-  const addStory = (category) => {
-    if (newStory.trim()) {
-      setStories((prevStories) => ({
-        ...prevStories,
-        [category]: [...prevStories[category], newStory],
-      }));
-      setNewStory("");
-      setSelectedCategory(null); // Hide the input field after adding the story
+  const loadStories = async () => {
+    try {
+      setLoading(true);
+      const response = await contentService.getAllContent({ type: 'story' });
+      setStories(response.content);
+    } catch (error) {
+      console.error('Error loading stories:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      navigate('/Login');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const tags = postForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      
+      await contentService.createContent({
+        ...postForm,
+        type: 'story',
+        tags
+      });
+
+      setPostForm({
+        title: '',
+        content: '',
+        category: 'Fiction',
+        tags: ''
+      });
+      setShowPostForm(false);
+      loadStories();
+    } catch (error) {
+      console.error('Error creating story:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLike = async (storyId) => {
+    if (!isAuthenticated) {
+      navigate('/Login');
+      return;
+    }
+
+    try {
+      await contentService.toggleLike(storyId);
+      loadStories(); // Reload to get updated like count
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const handleDelete = async (storyId) => {
+    if (window.confirm('Are you sure you want to delete this story?')) {
+      try {
+        await contentService.deleteContent(storyId);
+        loadStories();
+      } catch (error) {
+        console.error('Error deleting story:', error);
+      }
+    }
+  };
+
+  const categories = ["Fiction", "Non-Fiction", "Mystery", "Romance", "Adventure", "Horror", "Fantasy", "Sci-Fi"];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Stories App</h1>
-      {Object.keys(stories).map((category) => (
-        <div key={category} className="bg-blue-500 text-white rounded p-4 mb-6 relative min-h-[260px]">
-          <h2 className="text-2xl font-semibold text-center mb-4">{category}</h2>
-          <button
-            onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-            className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Add Story
-          </button>
-          <div className="text-center">
-            <div
-              className="p-4 mb-4 text-white rounded"
-              style={{ display: "inline-block", minWidth: "200px", backgroundColor: "rgba(255,255,255,0.2)" }}
-            >
-              {stories[category][currentIndex[category]]}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <FaBook className="text-4xl text-blue-600 mr-3" />
+            <h1 className="text-4xl font-bold text-blue-900">Story Corner</h1>
           </div>
-          <button onClick={() => previousStory(category)} className="absolute bottom-2 left-2 px-3 py-1 bg-gray-500 text-white rounded">
-            Previous
+          <p className="text-blue-700 text-lg">Share your stories and discover amazing tales</p>
+        </div>
+
+        {/* Post Button */}
+        <div className="text-center mb-8">
+          {isAuthenticated ? (
+          <button
+              onClick={() => setShowPostForm(!showPostForm)}
+              className="flex items-center mx-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+          >
+              <FaPlus className="mr-2" />
+              {showPostForm ? 'Cancel' : 'Share a Story'}
           </button>
-          <button onClick={() => nextStory(category)} className="absolute bottom-2 right-2 px-3 py-1 bg-yellow-500 text-white rounded">
-            Next
+          ) : (
+            <button
+              onClick={() => navigate('/Login')}
+              className="flex items-center mx-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+            >
+              <FaPlus className="mr-2" />
+              Login to Share a Story
+            </button>
+          )}
+        </div>
+
+        {/* Post Form */}
+        {showPostForm && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Share Your Story</h2>
+            <form onSubmit={handlePostSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input
+                  type="text"
+                  value={postForm.title}
+                  onChange={(e) => setPostForm({ ...postForm, title: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Enter story title"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={postForm.category}
+                  onChange={(e) => setPostForm({ ...postForm, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Story</label>
+                <textarea
+                  value={postForm.content}
+                  onChange={(e) => setPostForm({ ...postForm, content: e.target.value })}
+                  rows="8"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Write your story here..."
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma-separated)</label>
+                <input
+                  type="text"
+                  value={postForm.tags}
+                  onChange={(e) => setPostForm({ ...postForm, tags: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="fiction, mystery, adventure"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPostForm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  {submitting ? (
+                    <span className="flex items-center">
+                      <FaSpinner className="animate-spin mr-2" />
+                      Posting...
+                    </span>
+                  ) : (
+                    'Post Story'
+                  )}
+                </button>
+            </div>
+            </form>
+          </div>
+        )}
+
+        {/* Stories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stories.length > 0 ? (
+            stories.map((story) => (
+              <div key={story._id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                      {story.category}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      {user && story.author._id === user._id && (
+                        <>
+                          <button
+                            onClick={() => navigate(`/edit/${story._id}`)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Edit"
+                          >
+                            <FaEdit size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(story._id)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete"
+                          >
+                            <FaTrash size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{story.title}</h3>
+                  <p className="text-gray-700 mb-4 line-clamp-4">{story.content}</p>
+                  
+                  {story.tags && story.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {story.tags.map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={() => handleLike(story._id)}
+                        className={`flex items-center space-x-1 transition-colors ${
+                          story.likes?.includes(user?._id) ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+                        }`}
+                      >
+                        <FaHeart size={14} />
+                        <span>{story.likeCount || 0}</span>
           </button>
-          {selectedCategory === category && (
-            <div className="mt-4 text-center">
-              <input
-                type="text"
-                value={newStory}
-                onChange={(e) => setNewStory(e.target.value)}
-                className="p-2 border rounded mx-2 text-black"
-                placeholder={`Add a new story to "${category}"...`}
-              />
-              <div className="mt-2 bg-white p-2 rounded text-black">{newStory || "Start typing your story here..."}</div>
+                      <div className="flex items-center space-x-1">
+                        <FaEye size={14} />
+                        <span>{story.views || 0}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{story.author.username}</p>
+                      <p className="text-xs">{new Date(story.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-6xl text-blue-300 mb-4">📚</div>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No stories yet</h3>
+              <p className="text-gray-600 mb-4">Be the first to share an amazing story!</p>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => setShowPostForm(true)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Share Your First Story
+          </button>
+              ) : (
               <button
-                onClick={() => addStory(category)}
-                className="bg-green-500 text-white rounded px-3 py-2 mt-2"
+                  onClick={() => navigate('/Login')}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Add
+                  Login to Share
               </button>
+              )}
             </div>
           )}
         </div>
-      ))}
+
+        {/* Writing Tips */}
+        <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">✍️ Story Writing Tips</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+            <div>
+              <h4 className="font-semibold text-blue-600 mb-2">Start Strong</h4>
+              <p>Begin with an engaging opening that hooks your readers from the first sentence.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-600 mb-2">Show, Don't Tell</h4>
+              <p>Use descriptive language and dialogue to bring your characters and scenes to life.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-600 mb-2">Create Conflict</h4>
+              <p>Every good story needs tension and conflict to keep readers engaged.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-600 mb-2">End Satisfyingly</h4>
+              <p>Give your story a satisfying conclusion that resolves the main conflict.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
